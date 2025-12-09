@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeRound2, getState, checkSafety, requestResources, releaseResources, resetRound2 } from '../services/api';
-import '../styles/bankers.css';
+// Assuming the CSS for the terminal style is in this file or a separate 'terminal.css'
+import '../styles/bankers.css'; 
 
 export default function BankersAlgorithm({ sessionId, username }) {
   const [state, setState] = useState(null);
@@ -38,7 +39,9 @@ export default function BankersAlgorithm({ sessionId, username }) {
       const updatedState = await getState(sessionId);
       setState(updatedState);
       
-      setMessage(result.safe ? '✓ System is in SAFE state!' : '✗ System is in UNSAFE state!');
+      setMessage(result.safe 
+        ? `SAFE STATE detected. Sequence: [${(result.sequence || []).join(' -> ')}]` 
+        : `UNSAFE STATE detected. No safe sequence found.`);
     } catch (error) {
       setMessage('Error checking safety: ' + error.message);
     }
@@ -46,34 +49,35 @@ export default function BankersAlgorithm({ sessionId, username }) {
 
   const handleRequestResources = async () => {
     if (selectedProcess === null) {
-      setMessage('❌ Please select a process first');
+      setMessage('ERROR: Please select a process first.');
       return;
     }
+
+    const requestInts = request.map(val => parseInt(val) || 0);
 
     // Validate that at least one resource is requested
-    const hasValidRequest = request.some(val => val > 0);
+    const hasValidRequest = requestInts.some(val => val > 0);
     if (!hasValidRequest) {
-      setMessage('❌ Please request at least one resource (value must be greater than 0)');
+      setMessage('ERROR: Request must be greater than zero for at least one resource.');
       return;
     }
 
-    // Validate that request doesn't exceed available resources
-    const exceedsAvailable = request.some((val, idx) => val > state.available[idx]);
+    // Validation (Logic remains unchanged, only messages are styled)
+    const exceedsAvailable = requestInts.some((val, idx) => val > state.available[idx]);
     if (exceedsAvailable) {
-      setMessage('❌ Request exceeds available resources');
+      setMessage('ERROR: Request exceeds available resources.');
       return;
     }
 
-    // Validate that request doesn't exceed process need
     const need = calculateNeed(selectedProcess);
-    const exceedsNeed = request.some((val, idx) => val > need[idx]);
+    const exceedsNeed = requestInts.some((val, idx) => val > need[idx]);
     if (exceedsNeed) {
-      setMessage('❌ Request exceeds process maximum need');
+      setMessage('ERROR: Request exceeds process maximum need.');
       return;
     }
 
     try {
-      const result = await requestResources(sessionId, selectedProcess, request);
+      const result = await requestResources(sessionId, selectedProcess, requestInts);
       
       // Refresh complete state to get updated history and all data
       const updatedState = await getState(sessionId);
@@ -81,242 +85,239 @@ export default function BankersAlgorithm({ sessionId, username }) {
       
       if (result.granted) {
         setSafetyResult(result.safetyCheck);
-        
-        // Check if round is completed
+
         if (updatedState.completed) {
-          setMessage(`🎉 Round 2 Complete! All processes successfully executed. Final Score: ${updatedState.score}`);
+          setMessage(`ALL PROCESSES COMPLETED. Final Score: ${updatedState.score}. Round 2 terminated.`);
         } else {
-          setMessage(`✅ Request granted! System remains in safe state.`);
+          setMessage(`Request granted for ${state.processes[selectedProcess]}. System remains safe.`);
         }
         setRequest(new Array(updatedState.resources.length).fill(0));
       } else {
-        setMessage(`❌ Request denied: ${result.reason}`);
+        setMessage(`Request denied for ${state.processes[selectedProcess]}: ${result.reason}`);
         setSafetyResult(result.safetyCheck);
       }
     } catch (error) {
-      setMessage('❌ Error: ' + (error.response?.data?.error || error.message));
+      setMessage('ERROR: ' + (error.response?.data?.error || error.message));
     }
   };
 
   const handleReleaseResources = async (processIndex) => {
     try {
-      const result = await releaseResources(sessionId, processIndex);
+      await releaseResources(sessionId, processIndex);
       
       // Refresh state
       const newState = await getState(sessionId);
       setState(newState);
-      setMessage(`✓ Resources released from ${state.processes[processIndex]}`);
+      setMessage(`Resources released by completed process ${state.processes[processIndex]}.`);
     } catch (error) {
-      setMessage('Error releasing resources: ' + error.message);
+      setMessage('ERROR: Error releasing resources: ' + error.message);
     }
   };
 
   const handleReset = async () => {
-    if (window.confirm('Are you sure you want to reset Round 2?')) {
+    if (window.confirm('WARNING: Resetting Round 2 will erase your progress. Proceed?')) {
       try {
         await resetRound2(sessionId);
         setSafetyResult(null);
         setSelectedProcess(null);
         await initializeGame();
+        setMessage('System reset. Initial state loaded.');
       } catch (error) {
-        setMessage('Error resetting: ' + error.message);
+        setMessage('ERROR: Error resetting: ' + error.message);
       }
     }
   };
 
   const calculateNeed = (processIndex) => {
     if (!state) return [];
-    const need = [];
-    for (let j = 0; j < state.resources.length; j++) {
-      need.push(state.maxDemand[processIndex][j] - state.allocation[processIndex][j]);
+    const resourcesLen = Array.isArray(state.resources) ? state.resources.length : 0;
+    const need = new Array(resourcesLen).fill(0);
+    if (!Array.isArray(state.maxDemand) || !Array.isArray(state.allocation)) return need;
+    const maxRow = state.maxDemand[processIndex] || new Array(resourcesLen).fill(0);
+    const allocRow = state.allocation[processIndex] || new Array(resourcesLen).fill(0);
+    for (let j = 0; j < resourcesLen; j++) {
+      const maxVal = typeof maxRow[j] === 'number' ? maxRow[j] : 0;
+      const allocVal = typeof allocRow[j] === 'number' ? allocRow[j] : 0;
+      need[j] = maxVal - allocVal;
     }
     return need;
   };
 
+  // --- JSX TEMPLATE MODIFICATIONS FOR TERMINAL UI ---
+
   if (loading) {
-    return <div className="bankers-container"><div className="loading">Loading Round 2...</div></div>;
+    return (
+        <div className="terminal-container">
+            <div className="terminal-header">Round 2: Banker's Algorithm</div>
+            <div className="terminal-content">
+                <div className="loading">Loading Round 2...</div>
+            </div>
+        </div>
+    );
   }
 
   if (!state) {
-    return <div className="bankers-container"><div className="error">Failed to load Round 2</div></div>;
+    return (
+        <div className="terminal-container">
+            <div className="terminal-header">Round 2: Banker's Algorithm</div>
+            <div className="terminal-content">
+                <div className="error">FATAL ERROR: Failed to load Round 2</div>
+            </div>
+        </div>
+    );
   }
 
+  // Helper to format array for terminal display (defensive against malformed data)
+  const formatArray = (arr) => {
+    if (!Array.isArray(arr)) return '[]';
+    return `[${arr.join(', ')}]`;
+  };
+
+  // Determine message styling class from message content
+  const getMessageClass = (msg) => {
+    if (!msg) return 'info-text';
+    const lower = msg.toLowerCase();
+    if (lower.includes('error') || lower.includes('denied') || lower.includes('failed')) return 'error-text';
+    if (lower.includes('granted') || lower.includes('completed') || lower.includes('safe') || lower.includes('success')) return 'success-text';
+    return 'info-text';
+  };
+
   return (
-    <div className="bankers-container">
-      <div className="bankers-header">
-        <h1>Round 2: Banker's Algorithm</h1>
-        <div className="header-info">
-          <span className="username">Player: {username}</span>
-          <span className="score">Score: {state.score}</span>
-          {state.completed && <span className="completed-badge">✓ COMPLETED</span>}
+    <div className="terminal-container">
+      {/* Mimic Round 1 Header - Adjust styling in bankers.css */}
+      <div className="terminal-header">
+        <div className="traffic-lights">
+          <span className="red"></span>
+          <span className="yellow"></span>
+          <span className="green"></span>
+        </div>
+        <div className="header-title">Round 2: Deadlock Avoidance (Banker's)</div>
+        <div className="score-info">
+            User: {username} | Score: {state.score}
+            {state.completed && <span className="completed-badge"> | <span className="green-text">COMPLETED</span></span>}
+            <button className="terminal-button-menu" onClick={() => window.location.href = '/menu'}>
+                Back to Menu
+            </button>
+            <button className="terminal-button-logout" onClick={() => window.location.href = '/logout'}>
+                Logout
+            </button>
         </div>
       </div>
-
-      {state.completed && (
-        <div className="message success" style={{ fontSize: '18px', fontWeight: '600' }}>
-          Congratulations! All processes have been successfully executed. Round 2 Complete!
-        </div>
-      )}
-
-      <div className="objective-panel">
-        <h3>Objective</h3>
-        <p>Experiment with resource allocation and understand the Banker's Algorithm for deadlock avoidance.</p>
-        <ul>
-          <li>Select a process and request resources</li>
-          <li>Check if the system remains in a safe state</li>
-          <li>Find safe sequences for process execution</li>
-          <li>Release resources when processes complete</li>
-        </ul>
-      </div>
-
-      {message && (
-        <div className={`message ${message.includes('✓') ? 'success' : message.includes('✗') ? 'error' : 'info'}`}>
-          {message}
-        </div>
-      )}
-
-      <div className="main-grid">
-        {/* Process Nodes Visualization */}
-        <div className="processes-section">
-          <h3>Processes</h3>
-          <div className="nodes-grid">
-            {state.processes.map((proc, i) => {
-              const need = calculateNeed(i);
-              const isSelected = selectedProcess === i;
-              
-              return (
-                <div 
-                  key={proc} 
-                  className={`process-node ${isSelected ? 'selected' : ''}`}
-                  onClick={() => setSelectedProcess(i)}
-                >
-                  <div className="process-name">{proc}</div>
-                  <div className="process-arrays">
-                    <div>
-                      <strong>Allocated:</strong>
-                      <span>[{state.allocation[i].join(', ')}]</span>
-                    </div>
-                    <div>
-                      <strong>Max Demand:</strong>
-                      <span>[{state.maxDemand[i].join(', ')}]</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Resource Status */}
-        <div className="resources-section">
-          <h3>Resource Status</h3>
-          <div className="resources-grid">
-            {state.resources.map((res, j) => (
-              <div key={res} className="resource-card">
-                <div className="resource-name">{res}</div>
-                <div className="resource-stats">
-                  <div className="stat">
-                    <span className="stat-label">Total:</span>
-                    <span className="stat-value">{state.totalResources[j]}</span>
-                  </div>
-                  <div className="stat available">
-                    <span className="stat-label">Available:</span>
-                    <span className="stat-value">{state.available[j]}</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Allocated:</span>
-                    <span className="stat-value">
-                      {state.allocation.reduce((sum, proc) => sum + proc[j], 0)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Request Panel - Moved below main grid */}
-      <div className="request-panel">
-        <h3>Make a Request</h3>
-        <div className="selected-process">
-          Selected Process: <strong>{selectedProcess !== null ? state.processes[selectedProcess] : 'None'}</strong>
-        </div>
-        <div className="request-inputs">
-          {state.resources.map((res, j) => (
-            <div key={res} className="input-group">
-              <label>{res}:</label>
-              <input
-                type="number"
-                min="0"
-                value={request[j] || 0}
-                onChange={(e) => {
-                  const newRequest = [...request];
-                  newRequest[j] = parseInt(e.target.value) || 0;
-                  setRequest(newRequest);
-                }}
-                disabled={selectedProcess === null}
-              />
-            </div>
-          ))}
-        </div>
-        <button 
-          className="primary"
-          onClick={handleRequestResources}
-          disabled={selectedProcess === null}
-        >
-          Request Resources
-        </button>
-      </div>
-
-      {/* Safety Check Section */}
-      <div className="safety-panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3>Safety Analysis</h3>
-          <button className="secondary" onClick={handleCheckSafety}>
-            Check Safety
-          </button>
+      
+      <div className="terminal-content">
+        
+        {/* Status Messages */}
+        <div className="terminal-prompt">
+          /system/banker$ <span className="command-output">
+            {state.completed 
+                ? 'COMPLETED: All processes finished successfully.' 
+                : 'Connected'
+            }
+          </span>
         </div>
         
-        {safetyResult && (
-          <div className={`safety-result ${safetyResult.safe ? 'safe' : 'unsafe'}`}>
-            <div style={{ fontSize: '16px', fontWeight: '600' }}>
-              {safetyResult.safe ? '✓' : '✗'} System is in {safetyResult.safe ? 'SAFE' : 'UNSAFE'} state
-            </div>
-          </div>
-        )}
-      </div>
+        {/* Message moved below Execute Request button per UI change */}
 
-      {/* Action Buttons */}
-      <div className="action-buttons">
-        <button className="secondary" onClick={() => setShowHistory(!showHistory)}>
-          {showHistory ? 'Hide' : 'Show'} History
-        </button>
-        <button className="danger" onClick={handleReset}>
-          Reset Round
-        </button>
-      </div>
+        {/* System State Display */}
+        <div className="terminal-section">
+            <span className="prompt-label">SYSTEM STATE:</span>
+            <table className="terminal-table">
+                <thead>
+                  <tr>
+                    <th className="table-header">Process</th>
+                    <th className="table-header">Allocated ({(state.resources || []).join(', ')})</th>
+                    <th className="table-header">Max Demand ({(state.resources || []).join(', ')})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {(state.processes || []).map((proc, i) => {
+                      const need = calculateNeed(i);
+                      const isSelected = selectedProcess === i;
+                      const allocRow = (state.allocation && state.allocation[i]) || new Array((state.resources || []).length).fill(0);
+                      const isCompleted = need.every(n => n === 0) && allocRow.some(a => a > 0);
 
-      {/* History */}
-      {showHistory && state.history && (
-        <div className="history-panel">
-          <h3>Action History</h3>
-          <div className="history-list">
-            {state.history.slice().reverse().map((entry, i) => (
-              <div key={i} className="history-item">
-                <span className="timestamp">{new Date(entry.timestamp).toLocaleTimeString()}</span>
-                <span className="action">{entry.action}</span>
-                <span className="process">{entry.process}</span>
-                {entry.request && <span className="request">Request: [{entry.request.join(', ')}]</span>}
-                <span className={`result ${entry.granted ? 'granted' : 'denied'}`}>
-                  {entry.granted ? '✓' : '✗'}
-                </span>
-                <span className="reason">{entry.reason}</span>
-              </div>
-            ))}
-          </div>
+                        return (
+                            <tr 
+                                key={proc} 
+                                className={`terminal-row ${isSelected ? 'selected-row' : ''} ${isCompleted ? 'completed-row' : ''}`}
+                                onClick={() => setSelectedProcess(i)}
+                            >
+                                <td className="process-cell">
+                                    <span className={`process-name-cmd ${isSelected ? 'blink' : ''}`}>{proc}</span>
+                                </td>
+                                <td>{formatArray(allocRow)}</td>
+                                <td>{formatArray((state.maxDemand && state.maxDemand[i]) || new Array((state.resources || []).length).fill(0))}</td>
+                                {/* Status column removed per request; release button was part of it and removed */}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
         </div>
-      )}
+        
+        {/* Available Resources */}
+        <div className="terminal-section resource-status">
+            <span className="prompt-label">AVAILABLE RESOURCES:</span>
+            {(state.resources || []).map((res, j) => (
+                <span key={res} className="resource-stat">
+                    <span className="resource-name-cmd">{res}:</span> <span className="resource-value">{state.available[j]}</span> 
+                </span>
+            ))}
+            <span className="total-allocated">
+                <span className="prompt-label">TOTAL ALLOCATED:</span>
+              {(state.resources || []).map((res, j) => (
+                <span key={res} className="resource-stat">
+                  <span className="resource-name-cmd">{res}:</span> <span className="resource-value">{(state.allocation || []).reduce((sum, proc) => sum + (proc[j] || 0), 0)}</span> 
+                </span>
+              ))}
+            </span>
+        </div>
+
+        {/* Command Input/Request Panel */}
+        <div className="terminal-command-panel">
+            <div className="terminal-prompt-input">
+                /system/banker$ request <span className="info-text">{selectedProcess !== null ? state.processes[selectedProcess] : '<SELECT_PROCESS>'}</span>
+            </div>
+            
+            <div className="request-inputs-cmd">
+                {(state.resources || []).map((res, j) => (
+                    <div key={res} className="input-group-cmd">
+                        <label className="input-label-cmd">{res}=</label>
+                        <input
+                            type="number"
+                            min="0"
+                            value={request[j] || 0}
+                            onChange={(e) => {
+                                const newRequest = [...request];
+                                newRequest[j] = parseInt(e.target.value) || 0;
+                                setRequest(newRequest);
+                            }}
+                            disabled={selectedProcess === null}
+                            className="terminal-input"
+                        />
+                    </div>
+                ))}
+            </div>
+            
+            <button 
+                className="terminal-action-button primary-cmd"
+                onClick={handleRequestResources}
+                disabled={selectedProcess === null}
+            >
+                EXECUTE REQUEST
+            </button>
+
+            {/* Request result alert placed directly below the Execute button */}
+            {message && (
+              <div className={`message-output request-alert ${getMessageClass(message)}`}>
+                {message}
+              </div>
+            )}
+        </div>
+        {/* Safety check, history and reset buttons removed per request; history panel also removed */}
+        
+        {/* End of terminal content marker (trailing prompt removed per request) */}
+      </div>
     </div>
   );
 }
