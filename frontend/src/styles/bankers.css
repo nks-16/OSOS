@@ -348,7 +348,7 @@
 .request-form {
   display: grid;
   grid-template-columns: repeat(4, 1fr) 1.5fr 1.5fr;
-  gap: 12px;
+  gap: 20px;
   align-items: end;
   margin-top: 0;
 }
@@ -367,12 +367,12 @@
 .request-input {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .request-input label {
   color: #7dd3fc;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -380,13 +380,13 @@
 
 .request-input input {
   width: 100%;
-  padding: 10px;
+  padding: 12px 14px;
   background: #000;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   color: #0ea5a4;
   font-family: monospace;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
 }
