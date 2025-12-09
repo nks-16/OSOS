@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const auth = require('./routes/auth');
 const terminal = require('./routes/terminal');
 const bankers = require('./routes/bankers');
+const round3 = require('./routes/round3');
 
 const app = express();
 app.use(cors());
@@ -18,5 +19,8 @@ app.use('/api/terminal', terminal);
 
 // Round 2 routes
 app.use('/api/bankers', bankers);
+
+// Round 3 routes
+app.use('/api/round3', round3);
 
 app.listen(5000, () => console.log('Server listening on 5000'));

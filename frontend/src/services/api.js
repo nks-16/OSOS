@@ -53,6 +53,22 @@ export const completeRound2 = async (sessionId) => {
   return r.data;
 };
 
+// Round 3 - MCQ Quiz APIs
+export const initializeRound3 = async (sessionId) => {
+  const r = await API.post('/round3/initialize', { sessionId });
+  return r.data;
+};
+
+export const getRound3State = async (sessionId) => {
+  const r = await API.get(`/round3/state/${sessionId}`);
+  return r.data;
+};
+
+export const submitAnswer = async (sessionId, passageIndex, questionIndex, answer) => {
+  const r = await API.post('/round3/submit-answer', { sessionId, passageIndex, questionIndex, answer });
+  return r.data;
+};
+
 export default {
   login,
   getSession,
@@ -63,5 +79,8 @@ export default {
   requestResources,
   releaseResources,
   resetRound2,
-  completeRound2
+  completeRound2,
+  initializeRound3,
+  getRound3State,
+  submitAnswer
 };

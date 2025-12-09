@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Terminal from './components/Terminal';
 import Login from './components/Login';
 import BankersAlgorithm from './components/BankersAlgorithm';
+import Round3Quiz from './components/Round3Quiz';
 
 export default function App() {
   const [session, setSession] = useState(() => localStorage.getItem('sessionId') || null);
@@ -65,12 +66,12 @@ export default function App() {
               <button className="play-btn">Play Round 2</button>
             </div>
 
-            <div className="round-card disabled">
-              <div className="round-icon">🔒</div>
+            <div className="round-card" onClick={() => selectRound('round3')}>
+              <div className="round-icon">📚</div>
               <h2>Round 3</h2>
-              <h3>Coming Soon</h3>
-              <p>More OS challenges await!</p>
-              <button className="play-btn" disabled>Locked</button>
+              <h3>Comprehension Quiz</h3>
+              <p>Test your understanding of concurrency and threading concepts</p>
+              <button className="play-btn">Play Round 3</button>
             </div>
           </div>
         </div>
@@ -101,6 +102,17 @@ export default function App() {
           <button onClick={() => selectRound('menu')} className="back-btn">← Back to Menu</button>
         </div>
         <BankersAlgorithm sessionId={session} username={username} />
+      </div>
+    );
+  }
+
+  if (currentRound === 'round3') {
+    return (
+      <div className="app">
+        <div className="nav-controls">
+          <button onClick={() => selectRound('menu')} className="back-btn">← Back to Menu</button>
+        </div>
+        <Round3Quiz sessionId={session} username={username} />
       </div>
     );
   }
