@@ -10,54 +10,111 @@
   color: #d6e1e8;
 }
 
-/* Header */
-.round3-header {
+/* Terminal Box Wrapper */
+.terminal-box {
   background: linear-gradient(180deg, #04121a, #021017);
-  padding: 16px 24px;
+  color: #d6e1e8;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+  padding: 0;
   border-radius: 8px;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.round3-header h1 {
-  margin: 0;
-  color: #d6e1e8;
-  font-size: 24px;
-  font-weight: 600;
+.term-content {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+/* Terminal Header */
+.term-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #333;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.term-buttons {
+  display: flex;
+  gap: 6px;
+  margin-right: auto;
+}
+
+.term-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.term-dot.close {
+  background: #ff5f56;
+}
+
+.term-dot.min {
+  background: #ffbd2e;
+}
+
+.term-dot.max {
+  background: #27c93f;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+  color: #7dd3fc;
+  font-size: 16px;
+  font-weight: 700;
   letter-spacing: 0.5px;
 }
 
-.header-info {
+.header-right {
   display: flex;
-  gap: 20px;
-  font-size: 14px;
+  gap: 12px;
   align-items: center;
+  margin-left: auto;
 }
 
 .username {
   color: #9fb7c3;
+  font-size: 12px;
   font-weight: 600;
-}
-
-.completed-badge {
-  background: #0ea5a4;
-  color: #012;
-  padding: 6px 14px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .score {
   background: #0ea5a4;
   color: #012;
-  padding: 6px 14px;
+  padding: 4px 10px;
   border-radius: 4px;
   font-weight: 700;
+  font-size: 12px;
+}
+
+.completed-badge {
+  background: #27c93f;
+  color: #012;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Terminal Footer */
+.term-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b8a92;
+  padding: 8px 12px;
+  background-color: #333;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Objective Panel */

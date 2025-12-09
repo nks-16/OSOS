@@ -59,14 +59,24 @@ export default function Round3Quiz({ sessionId, username }) {
 
   return (
     <div className="round3-container">
-      <div className="round3-header">
-        <h1>Round 3: Comprehension Quiz</h1>
-        <div className="header-info">
-          <span className="username">Player: {username}</span>
-          <span className="score">Score: {state.score}</span>
-          {state.completed && <span className="completed-badge">COMPLETED</span>}
+      <div className="terminal-box">
+        {/* Terminal Header */}
+        <div className="term-header">
+          <div className="term-buttons">
+            <div className="term-dot close" />
+            <div className="term-dot min" />
+            <div className="term-dot max" />
+          </div>
+          <div className="header-center">Round 3: Comprehension Quiz</div>
+          <div className="header-right">
+            <span className="username">Player: {username}</span>
+            <span className="score">Score: {state.score}</span>
+            {state.completed && <span className="completed-badge">COMPLETED</span>}
+          </div>
         </div>
-      </div>
+
+        {/* Terminal Content */}
+        <div className="term-content">
 
       {state.completed && (
         <div className="message success">
@@ -144,6 +154,14 @@ export default function Round3Quiz({ sessionId, username }) {
         ))}
       </div>
 
+        </div> {/* Close term-content */}
+
+        {/* Terminal Footer */}
+        <div className="term-footer">
+          <div>Comprehension Quiz</div>
+          <div style={{ opacity: 0.8 }}>OS Escape — Round 3</div>
+        </div>
+      </div> {/* Close terminal-box */}
     </div>
   );
 }

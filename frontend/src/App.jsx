@@ -43,7 +43,7 @@ export default function App() {
     return (
       <div className="app">
         <div className="round-selection">
-          <h1>🎮 OS Escape Game</h1>
+          <h1>OS Escape Game</h1>
           <div className="user-bar">
             <span>Welcome, {username}!</span>
             <button onClick={onLogout} className="logout-btn">Logout</button>
@@ -51,7 +51,7 @@ export default function App() {
           
           <div className="rounds-container">
             <div className="round-card" onClick={() => selectRound('round1')}>
-              <div className="round-icon">📁</div>
+              <div className="round-icon">[ FS ]</div>
               <h2>Round 1</h2>
               <h3>File System Navigation</h3>
               <p>Master Linux terminal commands and navigate through a virtual file system</p>
@@ -59,7 +59,7 @@ export default function App() {
             </div>
 
             <div className="round-card" onClick={() => selectRound('round2')}>
-              <div className="round-icon">🏦</div>
+              <div className="round-icon">[ BA ]</div>
               <h2>Round 2</h2>
               <h3>Banker's Algorithm</h3>
               <p>Experiment with resource allocation and understand deadlock avoidance</p>
@@ -67,7 +67,7 @@ export default function App() {
             </div>
 
             <div className="round-card" onClick={() => selectRound('round3')}>
-              <div className="round-icon">📚</div>
+              <div className="round-icon">[ QUIZ ]</div>
               <h2>Round 3</h2>
               <h3>Comprehension Quiz</h3>
               <p>Test your understanding of concurrency and threading concepts</p>
@@ -83,7 +83,7 @@ export default function App() {
     return (
       <div className="app">
         <div className="round-header">
-          <h1>📁 Round 1: File System</h1>
+          <h1>Round 1: File System</h1>
           <div className="header-controls">
             <span>User: {username}</span>
             <button onClick={() => selectRound('menu')} className="back-btn">← Back to Menu</button>
