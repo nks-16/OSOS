@@ -1,0 +1,90 @@
+[
+  { "path": "/system/root", "name": "root", "type": "dir", "children": ["system.log","lost+found","bin","etc","modules","var","tmp"] },
+  { "path": "/system/root/system.log", "name": "system.log", "type": "file", "content": "Nov 30 06:12:51 kernel: EXT4-fs error (device sda2)..." },
+  { "path": "/system/root/lost+found", "name":"lost+found", "type":"dir", "children": [] },
+  { "path": "/system/root/bin", "name":"bin", "type":"dir", "children": [] },
+  { "path": "/system/root/etc", "name":"etc", "type":"dir", "children":["hosts","fstab"] },
+  { "path": "/system/root/etc/hosts","name":"hosts","type":"file","content":"127.0.0.1 localhost\n10.0.0.5 fs-module" },
+  { "path": "/system/root/etc/fstab","name":"fstab","type":"file","content":"# /etc/fstab dummy" },
+  { "path": "/system/root/modules","name":"modules","type":"dir","children":["fs","sys"] },
+  { "path": "/system/root/modules/fs","name":"fs","type":"dir","children":["config.txt","fs_state.log","cache","handlers"] },
+  { "path": "/system/root/modules/fs/config.txt","name":"config.txt","type":"file","content":"FS_VERSION=3.2.1\nSTATE=DEGRADED" },
+  { "path": "/system/root/modules/fs/fs_state.log","name":"fs_state.log","type":"file","content":"FS_STATE: DEGRADED\nMissing fragments: 3" },
+  { "path": "/system/root/modules/fs/cache","name":"cache","type":"dir","children":["fragment1.txt"] },
+  { "path": "/system/root/modules/fs/cache/fragment1.txt","name":"fragment1.txt","type":"file","content":"[FRAGMENT 1]\\nChecksum: MK-9A2\\nStatus: RECOVERED" },
+  { "path": "/system/root/modules/fs/handlers","name":"handlers","type":"dir","children":["read_handler.sh","write_handler.sh","archive_recover"] },
+  { "path": "/system/root/modules/fs/handlers/read_handler.sh","name":"read_handler.sh","type":"file","content":"#!/bin/bash\\necho \"[READ_HANDLER] operational\"" },
+  { "path": "/system/root/modules/fs/handlers/write_handler.sh","name":"write_handler.sh","type":"file","content":"#!/bin/bash\\necho \"[WRITE_HANDLER] operational\"" },
+  { "path": "/system/root/modules/fs/handlers/archive_recover","name":"archive_recover","type":"dir","children":["restore.sh","backup_20251130.tar.gz"] },
+  { "path": "/system/root/modules/fs/handlers/archive_recover/restore.sh","name":"restore.sh","type":"file","content":"#!/bin/bash\\necho \"restore\""},
+  { "path": "/system/root/modules/fs/handlers/archive_recover/backup_20251130.tar.gz","name":"backup_20251130.tar.gz","type":"file","content":"[{\"path\":\"fragment3.txt\",\"content\":\"[FRAGMENT 3]\\nChecksum: ZK-5C1\\nStatus: RECOVERED\"}]" },
+  { "path": "/system/root/modules/sys","name":"sys","type":"dir","children":["core.log","status"] },
+  { "path": "/system/root/modules/sys/core.log","name":"core.log","type":"file","content":"[SYS CORE] All primary services running." },
+  { "path": "/system/root/modules/sys/status","name":"status","type":"dir","children":["health.log"] },
+  { "path": "/system/root/modules/sys/status/health.log","name":"health.log","type":"file","content":"SYSTEM_STATUS=WARNING\\nFS_STATUS=DEGRADED" },
+  { "path": "/system/root/var","name":"var","type":"dir","children":[".orphan_58231","info.txt"] },
+  { "path": "/system/root/var/.orphan_58231","name":".orphan_58231","type":"file","content":"FRAG-ID: 0002\\nDATA-CHECKSUM: QX-4B7", "hidden": true },
+  { "path": "/system/root/var/info.txt","name":"info.txt","type":"file","content":"Temporary FS info" },
+  { "path": "/system/root/tmp","name":"tmp","type":"dir","children":["backup_20251130.tar.gz","session.log",".frag2_hidden"] },
+  { "path": "/system/root/tmp/session.log","name":"session.log","type":"file","content":"[SESSION] temporary console session" },
+  { "path": "/system/root/tmp/.frag2_hidden","name":".frag2_hidden","type":"file","content":"[FRAGMENT 2]\\nChecksum: QX-4B7","hidden": true },
+  { "path": "/system/root/tmp/backup_20251130.tar.gz","name":"backup_20251130.tar.gz","type":"file","content":"[{\"path\":\"fragment3.txt\",\"content\":\"[FRAGMENT 3]\\nChecksum: ZK-5C1\"}]"},
+  {
+  "path": "/system/root/var/log",
+  "name": "log",
+  "type": "dir",
+  "children": ["fswatch.log"]
+},
+{
+  "path": "/system/root/var/log/fswatch.log",
+  "name": "fswatch.log",
+  "type": "file",
+  "content": "2025-11-30 17:23:02 [WARN] excessive read activity in /system/root by PID 1399\n2025-11-30 17:23:03 [INFO] watcher: unindexed executable at /usr/local/bin/fs-replayd\n2025-11-30 17:23:05 [WARN] unexpected access to /tmp/.cache_replay\n"
+},
+{
+  "path": "/system/root/tmp",
+  "name": "tmp",
+  "type": "dir",
+  "children": [".cache_replay"]
+},
+{
+  "path": "/system/root/tmp/.cache_replay",
+  "name": ".cache_replay",
+  "type": "file",
+  "hidden": true,
+  "content": "[buffer] 4.7MB\nlast_writer_pid=1399\naccess_count=154\n"
+},
+{
+  "path": "/system/root/usr/local/bin",
+  "name": "bin",
+  "type": "dir",
+  "children": ["fs-replayd","clean-replay.sh"]
+},
+{
+  "path": "/system/root/usr/local/bin/fs-replayd",
+  "name": "fs-replayd",
+  "type": "file",
+  "mode": "0755",
+  "content": "#!/bin/sh\n# simulated fs replay daemon (placeholder)\n# usage: fs-replayd --scan /system/root\n"
+},
+{
+  "path": "/system/root/usr/local/bin/clean-replay.sh",
+  "name": "clean-replay.sh",
+  "type": "file",
+  "mode": "0644",
+  "content": "#!/bin/bash\n# clean-replay - simulated cleanup\necho \"[clean-replay] clearing replay buffers\"\necho \"[clean-replay] removing /tmp/.cache_replay\"\necho \"[clean-replay] stopping residual scan tasks\"\n"
+},
+{
+  "path": "/system/root/etc",
+  "name": "etc",
+  "type": "dir",
+  "children": ["replayd.conf"]
+},
+{
+  "path": "/system/root/etc/replayd.conf",
+  "name": "replayd.conf",
+  "type": "file",
+  "content": "# replayd config (unregistered)\nwatch_mode=full\npriority=high\n"
+}
+
+]
